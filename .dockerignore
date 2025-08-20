@@ -1,0 +1,22 @@
+# Git/IDE
+.git
+.gitignore
+.vscode
+.idea
+*.log
+
+# Node/Vite
+web/node_modules
+web/dist
+web/.vite
+
+# Go cache/build
+bin
+build
+*.out
+*.test
+
+# Banco local
+*.db
+data/*
+!data/.gitkeep

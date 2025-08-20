@@ -1,0 +1,14 @@
+# Git/IDE
+.git
+.vscode
+.idea
+*.log
+
+# Builds/cache
+bin
+build
+*.out
+*.test
+
+# Banco local
+*.db
