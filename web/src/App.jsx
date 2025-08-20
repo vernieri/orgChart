@@ -431,50 +431,86 @@ function EditEmployeeDialog({
 
 /* ---- FIX: removi a chave solta extra que havia aqui ---- */
 
-function EmployeeTable({ employees, onEdit }) {
+function EmployeeTable({ employees, onEdit, page, pageSize, onPageChange }) {
+  const total = employees.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const clampedPage = Math.min(Math.max(1, page), totalPages);
+  const start = (clampedPage - 1) * pageSize;
+  const end = start + pageSize;
+  const slice = employees.slice(start, end);
+
   return (
-    <div className="overflow-auto">
-      <table className="min-w-full text-sm">
-        <thead>
-          <tr className="text-left text-gray-600">
-            <th className="px-3 py-2">Name</th>
-            <th className="px-3 py-2">Title</th>
-            <th className="px-3 py-2">Email</th>
-            <th className="px-3 py-2">Team</th>
-            <th className="px-3 py-2">Manager</th>
-            <th className="px-3 py-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {employees.map((e) => (
-            <tr key={e.id} className="border-t">
-              <td className="px-3 py-2 font-medium">{e.name}</td>
-              <td className="px-3 py-2">{e.title || "—"}</td>
-              <td className="px-3 py-2">{e.email}</td>
-              <td className="px-3 py-2">{e.team?.name || "—"}</td>
-              <td className="px-3 py-2">{e.manager?.name || "—"}</td>
-              <td className="px-3 py-2">
-                <button
-                  className="rounded-lg border px-3 py-1 text-xs hover:bg-gray-50"
-                  onClick={() => onEdit?.(e)}
-                >
-                  Edit
-                </button>
-              </td>
+    <div className="space-y-3">
+      <div className="overflow-auto">
+        <table className="min-w-full text-sm">
+          <thead>
+            <tr className="text-left text-gray-600">
+              <th className="px-3 py-2">Name</th>
+              <th className="px-3 py-2">Title</th>
+              <th className="px-3 py-2">Email</th>
+              <th className="px-3 py-2">Team</th>
+              <th className="px-3 py-2">Manager</th>
+              <th className="px-3 py-2">Actions</th>
             </tr>
-          ))}
-          {employees.length === 0 && (
-            <tr>
-              <td className="px-3 py-6 text-center text-gray-500" colSpan={6}>
-                No employees yet
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {slice.map((e) => (
+              <tr key={e.id} className="border-t">
+                <td className="px-3 py-2 font-medium">{e.name}</td>
+                <td className="px-3 py-2">{e.title || "—"}</td>
+                <td className="px-3 py-2">{e.email}</td>
+                <td className="px-3 py-2">{e.team?.name || "—"}</td>
+                <td className="px-3 py-2">{e.manager?.name || "—"}</td>
+                <td className="px-3 py-2">
+                  <button
+                    className="rounded-lg border px-3 py-1 text-xs hover:bg-gray-50"
+                    onClick={() => onEdit?.(e)}
+                  >
+                    Edit
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {slice.length === 0 && (
+              <tr>
+                <td className="px-3 py-6 text-center text-gray-500" colSpan={6}>
+                  No employees
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Controles de paginação */}
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-xs text-gray-600">
+          Showing <strong>{total ? start + 1 : 0}</strong>–<strong>{Math.min(end, total)}</strong> of <strong>{total}</strong>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            className="rounded-lg border px-3 py-1 text-sm disabled:opacity-50"
+            onClick={() => onPageChange(clampedPage - 1)}
+            disabled={clampedPage <= 1}
+          >
+            ‹ Prev
+          </button>
+          <span className="text-sm">
+            Page <strong>{clampedPage}</strong> / {totalPages}
+          </span>
+          <button
+            className="rounded-lg border px-3 py-1 text-sm disabled:opacity-50"
+            onClick={() => onPageChange(clampedPage + 1)}
+            disabled={clampedPage >= totalPages}
+          >
+            Next ›
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
+
 
 function TreeNode({ node, depth = 0 }) {
   const [open, setOpen] = useState(true);
@@ -570,6 +606,12 @@ function TreeViewer({ employees }) {
 }
 
 export default function OrgChartApp() {
+  const [page, setPage] = useState(1);
+  const reloadEmployeesAndReset = async () => {
+    await reloadEmployees();
+    setPage(1);
+  };
+  const pageSize = 10;
   const {
     data: teams,
     loading: teamsLoading,
@@ -647,13 +689,21 @@ export default function OrgChartApp() {
           {anyLoading ? (
             <Notice>Loading…</Notice>
           ) : (
-            <EmployeeTable employees={employees} onEdit={onEdit} />
+            <EmployeeTable
+              employees={employees}        // ← tabela recebe a lista completa e pagina internamente
+              onEdit={onEdit}
+              page={page}
+              pageSize={pageSize}
+              onPageChange={setPage}
+            />
           )}
         </Card>
 
         <Card title="Hierarchy viewer">
-          <TreeViewer employees={employees} />
+          <TreeViewer employees={employees} />   
         </Card>
+
+
 
         {/* Dialog de edição */}
         <EditEmployeeDialog
