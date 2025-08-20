@@ -1,65 +1,65 @@
 # orgChart
 
-Organograma corporativo feito em **Go (backend)** e **React + Vite + Tailwind (frontend)**, com suporte a **Docker Compose** para rodar tudo em um único comando.
+Corporate organizational chart built with **Go (backend)** and **React + Vite + Tailwind (frontend)**, fully dockerized with **Docker Compose**.
 
-## 📌 Visão geral
+## 📌 Overview
 
-Este projeto fornece:
-- API backend em Go + GORM + SQLite
-- Frontend administrativo em React (Vite + Tailwind)
-- Visualização hierárquica de funcionários (organograma)
-- CRUD de times e funcionários
-- Deploy simplificado com Docker
-
----
-
-## 🚀 Funcionalidades
-
-- **Times**
-  - Criar times
-  - Listar times
-
-- **Funcionários**
-  - Criar funcionários
-  - Editar funcionários
-  - Associar a times e líderes
-  - Listagem em tabela
-  - Visualização hierárquica
-
-- **Infraestrutura**
-  - Banco SQLite persistente
-  - Containers separados para backend (API) e frontend (Nginx)
-  - Proxy interno via Nginx (`/api/` → backend)
+This project provides:
+- Go backend with GORM + SQLite
+- React (Vite + Tailwind) admin frontend
+- Hierarchical employee visualization (org chart)
+- CRUD for teams and employees
+- Simplified deployment with Docker
 
 ---
 
-## 📂 Estrutura do projeto
+## 🚀 Features
+
+- **Teams**
+  - Create teams
+  - List teams
+
+- **Employees**
+  - Create employees
+  - Edit employees
+  - Assign to teams and managers
+  - List employees in a table
+  - Visualize hierarchy
+
+- **Infrastructure**
+  - Persistent SQLite database
+  - Separate containers for backend (API) and frontend (Nginx)
+  - Internal proxy via Nginx (`/api/` → backend)
+
+---
+
+## 📂 Project structure
 
 ```
 orgChart/
-├── backend/                 # Código Go
-│   ├── cmd/server/main.go   # entrypoint da API
-│   ├── internal/            # models, db e lógica
+├── backend/                 # Go backend
+│   ├── cmd/server/main.go   # API entrypoint
+│   ├── internal/            # models, db, logic
 │   ├── go.mod / go.sum
-│   └── Dockerfile           # build da API
+│   └── Dockerfile           # API Dockerfile
 │
-├── web/                     # Frontend React
-│   ├── src/                 # componentes React
+├── web/                     # React frontend
+│   ├── src/                 # React components
 │   ├── public/
 │   ├── package.json
-│   ├── nginx.conf           # proxy frontend → backend
-│   └── Dockerfile           # build do frontend
+│   ├── nginx.conf           # frontend → backend proxy
+│   └── Dockerfile           # frontend Dockerfile
 │
-├── data/                    # Volume persistente do SQLite
+├── data/                    # SQLite persistent volume
 │   └── (orgchart.db)
 │
-├── docker-compose.yml       # Orquestração API + Front
-└── README.md                # Este documento
+├── docker-compose.yml       # Compose orchestration
+└── README.md                # This file
 ```
 
 ---
 
-## 🛠️ Requisitos
+## 🛠️ Requirements
 
 - [Go 1.22+](https://go.dev/dl/)
 - [Node.js 20+](https://nodejs.org/)
@@ -67,7 +67,7 @@ orgChart/
 
 ---
 
-## 🔧 Rodando localmente (sem Docker)
+## 🔧 Running locally (without Docker)
 
 ### Backend (Go)
 ```bash
@@ -75,7 +75,7 @@ cd backend
 go run ./cmd/server
 ```
 
-Por padrão a API sobe em **http://localhost:8080/api/v1**
+Default API runs at **http://localhost:8080/api/v1**
 
 ### Frontend (React + Vite)
 ```bash
@@ -84,15 +84,15 @@ npm install
 npm run dev
 ```
 
-Por padrão o frontend roda em **http://localhost:5173**.  
-Configure a variável `VITE_API_URL` em `.env` se a API estiver em outra URL.
+Default frontend runs at **http://localhost:5173**.  
+Configure `VITE_API_URL` in `.env` if the API is hosted elsewhere.
 
 ---
 
-## 🐳 Rodando com Docker
+## 🐳 Running with Docker
 
-### Build e subir
-Na raiz do projeto:
+### Build and start
+From project root:
 ```bash
 docker compose up --build
 ```
@@ -100,39 +100,39 @@ docker compose up --build
 - Frontend: [http://localhost:8080](http://localhost:8080)
 - API: [http://localhost:8080/api/v1](http://localhost:8080/api/v1)
 
-### Estrutura dos serviços
-- `api`: container Go + SQLite (volume montado em `./data`)
-- `web`: container Nginx servindo o React, com proxy para `api`
+### Service layout
+- `api`: Go + SQLite (volume mounted at `./data`)
+- `web`: Nginx serving React, proxying requests to `api`
 
-### Persistência
-O banco SQLite (`orgchart.db`) fica em `./data` no host e é montado no container.
+### Persistence
+SQLite database (`orgchart.db`) is stored in `./data` on the host and mounted inside the container.
 
 ---
 
-## ⚙️ Variáveis de ambiente
+## ⚙️ Environment variables
 
 ### Backend
-- `DB_PATH` — caminho do banco SQLite (default: `/data/orgchart.db`)
+- `DB_PATH` — path to SQLite database (default: `/data/orgchart.db`)
 
 ### Frontend
-- `VITE_API_URL` — URL base da API (default: `/api/v1` quando rodando via docker/nginx)
+- `VITE_API_URL` — base API URL (default: `/api/v1` when using docker/nginx)
 
 ---
 
-## 🧩 Endpoints principais
+## 🧩 Key Endpoints
 
 ### Healthcheck
 ```
 GET /api/v1/healthz
 ```
 
-### Times
+### Teams
 ```
 GET    /api/v1/teams
 POST   /api/v1/teams
 ```
 
-### Funcionários
+### Employees
 ```
 GET    /api/v1/employees
 POST   /api/v1/employees
@@ -142,21 +142,21 @@ DELETE /api/v1/employees/:id
 
 ---
 
-## 📖 Scripts de seed (opcional)
+## 📖 Seed scripts (optional)
 
-Você pode criar um arquivo `backend/internal/db/seed.go` para inserir dados iniciais (times/funcionários) e chamar no `Init()` caso o banco esteja vazio.
+You can create `backend/internal/db/seed.go` to insert initial data (teams/employees) and call it in `Init()` if the database is empty.
 
 ---
 
 ## 📌 TODO / Roadmap
 
-- [ ] Autenticação (JWT)
-- [ ] Upload de avatar para funcionários
-- [ ] Deploy automatizado (Render, Railway, etc.)
-- [ ] Tests (unitários e integração)
+- [ ] Authentication (JWT)
+- [ ] Employee avatar upload
+- [ ] Automated deployment (Render, Railway, etc.)
+- [ ] Unit and integration tests
 
 ---
 
-## 👨‍💻 Autores
+## 👨‍💻 Authors
 
-- **[@vernieri](https://github.com/vernieri)** — Projeto original e manutenção
+- **[@vernieri](https://github.com/vernieri)** — Original project and maintenance
