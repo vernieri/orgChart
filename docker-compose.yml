@@ -1,0 +1,25 @@
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: orgchart_api
+    volumes:
+      - ./data:/data          # <-- volume agora em /data
+    networks: [orgnet]
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api/v1
+    container_name: orgchart_web
+    depends_on: [api]
+    ports:
+      - "8080:80"
+    networks: [orgnet]
+
+networks:
+  orgnet:
+    driver: bridge
